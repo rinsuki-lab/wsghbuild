@@ -88,7 +88,7 @@ optdepends=(
   libxslt               lib32-libxslt
   libva                 lib32-libva
   gtk3                  lib32-gtk3
-  gst-plugins-base-libs lib32-gst-plugins-base
+  gst-plugins-base-libs lib32-gst-plugins-base-libs
   cups
   samba           dosbox
 )
@@ -155,6 +155,8 @@ build() {
     --with-gstreamer \
     --with-xattr \
     "${_wine32opts[@]}"
+
+  make
 }
 
 package() {

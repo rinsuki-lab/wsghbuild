@@ -6,7 +6,7 @@
 
 pkgname=wine-staging
 pkgver=1.9.8
-pkgrel=1
+pkgrel=2
 
 _pkgbasever=${pkgver/rc/-rc}
 
@@ -20,7 +20,6 @@ url="http://www.wine-staging.com"
 arch=(i686 x86_64)
 options=(staticlibs)
 license=(LGPL)
-install=wine-staging.install
 
 _depends=(
   attr             lib32-attr

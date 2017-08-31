@@ -6,7 +6,7 @@
 
 pkgname=wine-staging
 pkgver=2.15
-pkgrel=1
+pkgrel=2
 
 _pkgbasever=${pkgver/rc/-rc}
 
@@ -65,7 +65,7 @@ makedepends=(autoconf ncurses bison perl fontforge flex
   samba
   opencl-headers
 )
-  
+
 optdepends=(
   giflib                lib32-giflib
   libpng                lib32-libpng
@@ -108,6 +108,10 @@ fi
 prepare() {
   # Allow ccache to work
   mv wine-patched-staging-$_pkgbasever $pkgname
+
+  # https://bugs.winehq.org/show_bug.cgi?id=43530
+  export CFLAGS="${CFLAGS/-fno-plt/}"
+  export LDFLAGS="${LDFLAGS/,-z,now/}"
 
   sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i $pkgname/configure*
 

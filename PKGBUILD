@@ -6,7 +6,7 @@
 
 pkgname=wine-staging
 pkgver=2.16
-pkgrel=1
+pkgrel=2
 
 _pkgbasever=${pkgver/rc/-rc}
 
@@ -110,6 +110,7 @@ prepare() {
   mv wine-patched-staging-$_pkgbasever $pkgname
 
   # https://bugs.winehq.org/show_bug.cgi?id=43530
+  export CFLAGS="${CFLAGS/-fno-plt/}"
   export LDFLAGS="${LDFLAGS/,-z,now/}"
 
   sed 's|OpenCL/opencl.h|CL/opencl.h|g' -i $pkgname/configure*

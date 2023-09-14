@@ -6,7 +6,7 @@
 
 pkgname=wine-staging
 pkgver=8.15
-pkgrel=1
+pkgrel=2
 
 _pkgbasever=${pkgver/rc/-rc}
 _winever=$_pkgbasever
@@ -91,8 +91,8 @@ optdepends=(
   samba           dosbox
 )
 
-provides=("wine=$pkgver" "wine-wow64=$pkgver")
-conflicts=('wine' 'wine-wow64')
+provides=("wine=$pkgver")
+conflicts=('wine')
 install=wine.install
 
 prepare() {

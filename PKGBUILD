@@ -5,20 +5,20 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging
-pkgver=8.21
+pkgver=9.5
 pkgrel=1
 
 _pkgbasever=${pkgver/rc/-rc}
 _winever=$_pkgbasever
 #_winever=${_pkgbasever%.*}
 
-source=(https://dl.winehq.org/wine/source/8.x/wine-$_winever.tar.xz{,.sign}
+source=(https://dl.winehq.org/wine/source/9.x/wine-$_winever.tar.xz{,.sign}
         "https://github.com/wine-staging/wine-staging/archive/v$_pkgbasever/wine-staging-v$_pkgbasever.tar.gz"
         30-win32-aliases.conf
         wine-binfmt.conf)
-sha512sums=('4d04d40141d2ea5e548b76aed870ac28d8a03241ffd4e761979c795310baa19136e54a8e518c6ea9bf563c3b23d3c4eb1baefc9906d7eeca469e9942ff99dc40'
+sha512sums=('8ccad8f6e6b1428886dee9fae771796e2021b4122cd96464350352bede25421406e6a6a0fdd63d8b99b896db8dc529aa6e05d6ac7966bee49ce3055b18a8af91'
             'SKIP'
-            'abba6084f2aefa8507c2a79c688b717f8137375168e5457ee40a0c96bfce31e9dc44370ecb5a8e8a397e90ce2eb8543fd07b447bf48c4b2d4c68aac9b3674214'
+            '8c756fe505092e21dd37c709ac3917c305b70881c05270f0e188ccdf9ff36b9fd224adad424d37c6919637d2af55afbfba49079eb5b6708a6cf4f2dd98966784'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
             'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
 validpgpkeys=(5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
@@ -28,7 +28,7 @@ pkgdesc="A compatibility layer for running Windows programs - Staging branch"
 url="https://www.wine-staging.com"
 arch=(x86_64)
 options=(staticlibs !lto)
-license=(LGPL)
+license=(LGPL-2.1-or-later)
 
 depends=(
   attr             lib32-attr
@@ -95,7 +95,7 @@ provides=("wine=$pkgver")
 conflicts=('wine')
 install=wine.install
 
-prepare() {
+build() {
   # Allow ccache to work
   mv wine-$_winever $pkgname
 
@@ -106,12 +106,9 @@ prepare() {
   # apply wine-staging patchset
   cd $pkgname
   ../wine-staging-$_pkgbasever/staging/patchinstall.py --all
-}
 
-build() {
   # Doesn't compile without remove these flags as of 4.10
-  export CFLAGS="${CFLAGS/-fno-plt/}"
-  export LDFLAGS="${LDFLAGS/,-z,now/}"
+  export CFLAGS="$CFLAGS -ffat-lto-objects"
 
   cd "$srcdir"
 
@@ -122,6 +119,7 @@ build() {
     --prefix=/usr \
     --libdir=/usr/lib \
     --with-x \
+    --with-wayland \
     --with-gstreamer \
     --enable-win64 \
     --with-xattr
@@ -135,6 +133,7 @@ build() {
   ../$pkgname/configure \
     --prefix=/usr \
     --with-x \
+    --with-wayland \
     --with-gstreamer \
     --with-xattr \
     --libdir=/usr/lib32 \

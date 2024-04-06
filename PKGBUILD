@@ -5,7 +5,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging
-pkgver=9.5
+pkgver=9.6
 pkgrel=1
 
 _pkgbasever=${pkgver/rc/-rc}
@@ -16,9 +16,9 @@ source=(https://dl.winehq.org/wine/source/9.x/wine-$_winever.tar.xz{,.sign}
         "https://github.com/wine-staging/wine-staging/archive/v$_pkgbasever/wine-staging-v$_pkgbasever.tar.gz"
         30-win32-aliases.conf
         wine-binfmt.conf)
-sha512sums=('8ccad8f6e6b1428886dee9fae771796e2021b4122cd96464350352bede25421406e6a6a0fdd63d8b99b896db8dc529aa6e05d6ac7966bee49ce3055b18a8af91'
+sha512sums=('cc2ea5597636da8d392d1d63b9c135679eff69ea671dc6b53b6f2d44a890aee0e17275174485f6e8dd99c7db737eb82a800a2b05c4966f15e28167c5a6098922'
             'SKIP'
-            '8c756fe505092e21dd37c709ac3917c305b70881c05270f0e188ccdf9ff36b9fd224adad424d37c6919637d2af55afbfba49079eb5b6708a6cf4f2dd98966784'
+            '83691eb560c860d40669a524196a522007c76420b5b5076da4f446a4180fee7558ef228cf1f4179eb78a6d36c8ab78fd2784ffc879b0aacbef7c72a7f88e7ed2'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
             'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
 validpgpkeys=(5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
@@ -95,7 +95,7 @@ provides=("wine=$pkgver")
 conflicts=('wine')
 install=wine.install
 
-build() {
+prepare() {
   # Allow ccache to work
   mv wine-$_winever $pkgname
 
@@ -106,7 +106,9 @@ build() {
   # apply wine-staging patchset
   cd $pkgname
   ../wine-staging-$_pkgbasever/staging/patchinstall.py --all
+}
 
+build() {
   # Doesn't compile without remove these flags as of 4.10
   export CFLAGS="$CFLAGS -ffat-lto-objects"
 

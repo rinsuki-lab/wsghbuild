@@ -5,20 +5,19 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging
-pkgver=9.12
+pkgver=9.19
 pkgrel=1
 
 _pkgbasever=${pkgver/rc/-rc}
 _winever=$_pkgbasever
 #_winever=${_pkgbasever%.*}
 
-source=(https://dl.winehq.org/wine/source/9.x/wine-$_winever.tar.xz{,.sign}
+source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$pkgver"
         "https://github.com/wine-staging/wine-staging/archive/v$_pkgbasever/wine-staging-v$_pkgbasever.tar.gz"
         30-win32-aliases.conf
         wine-binfmt.conf)
-sha512sums=('00c25cb11feed3625ebd8dc76fa35930d07d51182be4537c488ac4e713d6f9c61b974b19eafb57f54630376346dc1749c4d36a18d0f72748b34052cc7322df19'
-            'SKIP'
-            '85d135cc9bef9357ae0899f7b2b5ae61750f1d733dbae05c56e29e5b5705c6b2b9c3c95a83ceec35cf7b631f4157d6685317f8a1078fe1cf7f6c550f7db80009'
+sha512sums=('793d6d83094f9a7fa90673325b77aae501dfe6261aed8ff54c5bba5cfbd84268f7af7dcbc05f63c7bc1762046a7dadc76845f9249a12c7dab7814ff411ccb9b8'
+            'c2504af047125e2bf29e4c1d9d7bef275a7bc236bc85344977448a8c4a2bd32cdb813db4ebe26de1b91d04371751ffe3498b9d9c96793d3d3d236fe6be9903dd'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
             'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
 validpgpkeys=(5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
@@ -67,6 +66,7 @@ makedepends=(autoconf bison perl flex mingw-w64-gcc
   ffmpeg
   samba
   opencl-headers
+  git
 )
 
 optdepends=(
@@ -97,7 +97,7 @@ install=wine.install
 
 prepare() {
   # Allow ccache to work
-  mv wine-$_winever $pkgname
+  mv wine $pkgname
 
   # Get rid of old build dirs
   rm -rf $pkgname-{32,64}-build
@@ -105,7 +105,7 @@ prepare() {
 
   # apply wine-staging patchset
   cd $pkgname
-  ../wine-staging-$_pkgbasever/staging/patchinstall.py --all
+  ../wine-staging-$_pkgbasever/staging/patchinstall.py --backend=git-apply --all
 }
 
 build() {

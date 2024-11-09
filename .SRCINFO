@@ -1,6 +1,6 @@
 pkgbase = wine-staging
 	pkgdesc = A compatibility layer for running Windows programs - Staging branch
-	pkgver = 9.20
+	pkgver = 9.21
 	pkgrel = 1
 	url = https://www.wine-staging.com
 	install = wine.install
@@ -106,18 +106,18 @@ pkgbase = wine-staging
 	optdepends = cups
 	optdepends = samba
 	optdepends = dosbox
-	provides = wine=9.20
+	provides = wine=9.21
 	conflicts = wine
 	options = staticlibs
 	options = !lto
-	source = git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-9.20
-	source = wine-staging-9.20::git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v9.20
+	source = git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-9.21
+	source = wine-staging-9.21::git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v9.21
 	source = 30-win32-aliases.conf
 	source = wine-binfmt.conf
 	validpgpkeys = 5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
 	validpgpkeys = DA23579A74D4AD9AF9D3F945CEFAC8EAAF17519D
-	sha512sums = 1a7b129aaa8d43ff69378ffa9f65e7b0f41c81fe53502a71f64c54397b06aaf1183f4893024153482c84cf85eb9af024d0fc7bfe994c27c53c9e9d357da6cdcd
-	sha512sums = accbb0422fe8d246fd11f818e6ac9586a93684a81671ec59e265ac642ee3107b2cc90724c2138b00150ea7000d4c7fd165a2202d05556ee0aeb9ef365234af7f
+	sha512sums = e062a38f8b7f5786d1e3fa54bc3b62c2a8902b29f461765dc1b9313b1b081d535c6367ccf4674e9e0c9258d2432992ce9086008fe848e5d4daee3d2324b74a8a
+	sha512sums = f78a068d3954464b6f8c5b2e1f8ffa9a2e17fa351db4458783a4ed8db7b00843606a8032e078424920191a352b79a357defcfddb7237acf366ec21bbd6d1a7dd
 	sha512sums = 6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb
 	sha512sums = bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285
 

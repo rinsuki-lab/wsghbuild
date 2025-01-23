@@ -6,19 +6,19 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging
-pkgver=9.22
+pkgver=10.0
 pkgrel=1
 
 _pkgbasever=${pkgver/rc/-rc}
 _winever=$_pkgbasever
 #_winever=${_pkgbasever%.*}
 
-source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$pkgver"
+source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$_pkgbasever"
         "wine-staging-$_pkgbasever::git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v$_pkgbasever"
         30-win32-aliases.conf
         wine-binfmt.conf)
-sha512sums=('5fbc77ea573b4d0ae11ad30302e799d9a03620dfc87d005a8abee381010d1dae6c1b11cb06385b1ef6ae6f887f1e747c20e01bf0bb4853f0ca945486d9513857'
-            'c936aae676652de4c877cc696560777c1fe0f7f905919b45005e227aff1da1ea25e2088859dbe0ac01c9d436adf00bf6700d642203b5ae99ba5e4ff715eec92e'
+sha512sums=('3eef70afae25a40537e2f4bc615c90374829eaf46f3654202d53ac55e9e53bbc31c7fb3c3c65b9caf1a64baba85b1ede9822fe8e3f6e55c4bb3f181b1258751c'
+            'fa9a6276ca75af72ae190e161d60275f3663295cd2d0f155e180c2d18a84a06e0d54c4ec2eb0ae84f9b0bf4c02b5b90a08302e0e91bf86a52e2411d6ab9a4e9e'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
             'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
 validpgpkeys=(5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
@@ -44,6 +44,7 @@ depends=(
 )
 
 makedepends=(autoconf bison perl flex mingw-w64-gcc
+  git
   giflib                lib32-giflib
   gnutls                lib32-gnutls
   libxinerama           lib32-libxinerama
@@ -67,7 +68,6 @@ makedepends=(autoconf bison perl flex mingw-w64-gcc
   ffmpeg
   samba
   opencl-headers
-  git
 )
 
 optdepends=(

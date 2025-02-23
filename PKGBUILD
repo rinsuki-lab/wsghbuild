@@ -14,7 +14,7 @@ _winever=$_pkgbasever
 #_winever=${_pkgbasever%.*}
 
 source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$_pkgbasever"
-        "wine-staging-$_pkgbasever::git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v$_pkgbasever"
+        "git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v$_pkgbasever"
         30-win32-aliases.conf
         wine-binfmt.conf)
 sha512sums=('cce446679970bd40782b5ccdc9544e13981bee20c22e25cba710e6bcc91897bfd7a4077bcd7ee2c286c9e6c5e40adfb87c03ce293e4bccab828fed058ec78baa'
@@ -29,67 +29,66 @@ url="https://www.wine-staging.com"
 arch=(x86_64)
 options=(staticlibs !lto)
 license=(LGPL-2.1-or-later)
-
 depends=(
-  attr             lib32-attr
-  fontconfig       lib32-fontconfig
-  libxcursor       lib32-libxcursor
-  libxrandr        lib32-libxrandr
-  libxi            lib32-libxi
-  gettext          lib32-gettext
-  freetype2        lib32-freetype2
-  gcc-libs         lib32-gcc-libs
-  libpcap          lib32-libpcap
+  attr            lib32-attr
   desktop-file-utils
+  fontconfig      lib32-fontconfig
+  freetype2       lib32-freetype2
+  gcc-libs        lib32-gcc-libs
+  gettext         lib32-gettext
+  libpcap         lib32-libpcap
+  libxcursor      lib32-libxcursor
+  libxi           lib32-libxi
+  libxrandr       lib32-libxrandr
 )
-
 makedepends=(autoconf bison perl flex mingw-w64-gcc
   git
+  alsa-lib              lib32-alsa-lib
+  ffmpeg
   giflib                lib32-giflib
   gnutls                lib32-gnutls
+  gst-plugins-base-libs lib32-gst-plugins-base-libs
+  gtk3                  lib32-gtk3
+  libcups               lib32-libcups
+  libgphoto2
+  libpulse              lib32-libpulse
+  libva                 lib32-libva
+  libxcomposite         lib32-libxcomposite
   libxinerama           lib32-libxinerama
-  libxcomposite         lib32-libxcomposite
   libxxf86vm            lib32-libxxf86vm
-  v4l-utils             lib32-v4l-utils
-  alsa-lib              lib32-alsa-lib
-  libxcomposite         lib32-libxcomposite
   mesa                  lib32-mesa
   mesa-libgl            lib32-mesa-libgl
-  opencl-icd-loader     lib32-opencl-icd-loader
-  libpulse              lib32-libpulse
-  libva                 lib32-libva
-  gtk3                  lib32-gtk3
-  gst-plugins-base-libs lib32-gst-plugins-base-libs
-  vulkan-icd-loader     lib32-vulkan-icd-loader
-  sdl2                  lib32-sdl2
-  libcups               lib32-libcups
-  sane
-  libgphoto2
-  ffmpeg
-  samba
   opencl-headers
+  opencl-icd-loader     lib32-opencl-icd-loader
+  samba
+  sane
+  sdl2                  lib32-sdl2
+  v4l-utils             lib32-v4l-utils
+  vulkan-icd-loader     lib32-vulkan-icd-loader
 )
-
 optdepends=(
+  alsa-lib              lib32-alsa-lib
+  alsa-plugins          lib32-alsa-plugins
+  cups                  lib32-libcups
+  dosbox
+  ffmpeg
   giflib                lib32-giflib
   gnutls                lib32-gnutls
-  v4l-utils             lib32-v4l-utils
+  gst-plugins-base-libs lib32-gst-plugins-base-libs
+  gtk3                  lib32-gtk3
+  libgphoto2
   libpulse              lib32-libpulse
-  alsa-plugins          lib32-alsa-plugins
-  alsa-lib              lib32-alsa-lib
+  libva                 lib32-libva
   libxcomposite         lib32-libxcomposite
   libxinerama           lib32-libxinerama
   opencl-icd-loader     lib32-opencl-icd-loader
-  libva                 lib32-libva
-  gtk3                  lib32-gtk3
-  gst-plugins-base-libs lib32-gst-plugins-base-libs
-  vulkan-icd-loader     lib32-vulkan-icd-loader
-  sdl2                  lib32-sdl2
+  samba
   sane
-  libgphoto2
-  ffmpeg
-  cups
-  samba           dosbox
+  sdl2                  lib32-sdl2
+  v4l-utils             lib32-v4l-utils
+  vulkan-icd-loader     lib32-vulkan-icd-loader
+  wine-gecko
+  wine-mono
 )
 
 provides=("wine=$pkgver")
@@ -97,16 +96,13 @@ conflicts=('wine')
 install=wine.install
 
 prepare() {
-  # Allow ccache to work
-  mv wine $pkgname
-
   # Get rid of old build dirs
   rm -rf $pkgname-{32,64}-build
   mkdir $pkgname-{32,64}-build
 
+  cd wine
   # apply wine-staging patchset
-  cd $pkgname
-  ../wine-staging-$_pkgbasever/staging/patchinstall.py --backend=git-apply --all
+  ../wine-staging/staging/patchinstall.py --backend=git-apply --all
 }
 
 build() {
@@ -119,47 +115,42 @@ build() {
   export CROSSCXXFLAGS="-O2 -pipe"
   export CROSSLDFLAGS="-Wl,-O1"
 
-  cd "$srcdir"
-
-  msg2 "Building Wine-64..."
-
+  echo "Building Wine-64..."
   cd "$srcdir/$pkgname-64-build"
-  ../$pkgname/configure \
+  ../wine/configure \
     --prefix=/usr \
     --libdir=/usr/lib \
     --with-x \
     --with-wayland \
     --with-gstreamer \
-    --enable-win64 \
-    --with-xattr
+    --with-xattr \
+    --enable-win64
 
   make
 
-  msg2 "Building Wine-32..."
-
+  echo "Building Wine-32..."
   export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
   cd "$srcdir/$pkgname-32-build"
-  ../$pkgname/configure \
+  ../wine/configure \
     --prefix=/usr \
+    --libdir=/usr/lib32 \
     --with-x \
     --with-wayland \
     --with-gstreamer \
     --with-xattr \
-    --libdir=/usr/lib32 \
     --with-wine64="$srcdir/$pkgname-64-build"
 
   make
 }
 
 package() {
-  msg2 "Packaging Wine-32..."
+  echo "Packaging Wine-32..."
   cd "$srcdir/$pkgname-32-build"
-
   make prefix="$pkgdir/usr" \
     libdir="$pkgdir/usr/lib32" \
     dlldir="$pkgdir/usr/lib32/wine" install
 
-  msg2 "Packaging Wine-64..."
+  echo "Packaging Wine-64..."
   cd "$srcdir/$pkgname-64-build"
   make prefix="$pkgdir/usr" \
     libdir="$pkgdir/usr/lib" \

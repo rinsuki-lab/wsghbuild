@@ -6,7 +6,7 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=wine-staging
-pkgver=10.1
+pkgver=10.2
 pkgrel=1
 
 _pkgbasever=${pkgver/rc/-rc}
@@ -15,10 +15,12 @@ _winever=$_pkgbasever
 
 source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$_pkgbasever"
         "git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v$_pkgbasever"
+        fix-ptr-access.patch::https://gitlab.winehq.org/wine/wine/-/commit/05315ce3da4d6f04232611fb5dd6ffbd77f87ce7.patch
         30-win32-aliases.conf
         wine-binfmt.conf)
-sha512sums=('cce446679970bd40782b5ccdc9544e13981bee20c22e25cba710e6bcc91897bfd7a4077bcd7ee2c286c9e6c5e40adfb87c03ce293e4bccab828fed058ec78baa'
-            'dcaa61a286f94dda85b20d418c03e20ae4598a7729ab42912e69f3b7c66841e7f1afcc13b6d88ac3a70d7d3bebec854f18944865ed1fc5cdb3fe91c4b3b2317d'
+sha512sums=('2664d57860cd74706556bcf7e6ec48b4a7c49d8f22ed791bfc43caa50d43733a5a28c68a9d89842b9cce7b403d68dd21b9e328efc3349229cdeaf1f31188b51e'
+            '913331168a9e0011314f26dfdc9f41241652246688984025768c7b2e7a52aa257fb17c8477c22df795a23b199c834b462e03aa8da29bebe3811057129741dd00'
+            '547a1a31fcfa421e982da6032cdf398e5814d6f35c0670029d69853b89bde6dddfe47c514c2c5ff59d1d0f673c9a9df9adce88d199305f8ed2143ae8d65e2057'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
             'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
 validpgpkeys=(5AC1A08B03BD7A313E0A955AF5E6E9EEB9461DD7
@@ -103,6 +105,8 @@ prepare() {
   cd wine
   # apply wine-staging patchset
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all
+  # Fix for https://bugs.winehq.org/show_bug.cgi?id=57854
+  patch -Np1 -i "$srcdir"/fix-ptr-access.patch
 }
 
 build() {
@@ -133,7 +137,7 @@ build() {
   cd "$srcdir/$pkgname-32-build"
   ../wine/configure \
     --prefix=/usr \
-    --libdir=/usr/lib32 \
+    --libdir=/usr/lib \
     --with-x \
     --with-wayland \
     --with-gstreamer \
@@ -147,8 +151,8 @@ package() {
   echo "Packaging Wine-32..."
   cd "$srcdir/$pkgname-32-build"
   make prefix="$pkgdir/usr" \
-    libdir="$pkgdir/usr/lib32" \
-    dlldir="$pkgdir/usr/lib32/wine" install
+    libdir="$pkgdir/usr/lib" \
+    dlldir="$pkgdir/usr/lib/wine" install
 
   echo "Packaging Wine-64..."
   cd "$srcdir/$pkgname-64-build"
@@ -162,7 +166,7 @@ package() {
   ln -s ../conf.avail/30-win32-aliases.conf "$pkgdir/usr/share/fontconfig/conf.default/30-win32-aliases.conf"
   install -Dm 644 "$srcdir/wine-binfmt.conf" "$pkgdir/usr/lib/binfmt.d/wine.conf"
 
-  i686-w64-mingw32-strip --strip-unneeded "$pkgdir"/usr/lib32/wine/i386-windows/*.dll
+  i686-w64-mingw32-strip --strip-unneeded "$pkgdir"/usr/lib/wine/i386-windows/*.dll
   x86_64-w64-mingw32-strip --strip-unneeded "$pkgdir"/usr/lib/wine/x86_64-windows/*.dll
 }
 

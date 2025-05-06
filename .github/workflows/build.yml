@@ -40,6 +40,9 @@ jobs:
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown -R builder:builder .
           
+          # Import GPG keys
+          sudo -u builder bash -c 'gpg --import keys/pgp/*.asc'
+          
           # Build package as non-root user
           sudo -u builder bash -c 'makepkg -s --noconfirm'
 

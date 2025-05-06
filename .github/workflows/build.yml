@@ -33,7 +33,7 @@ jobs:
           pacman --noconfirm -Syu
           pacman --noconfirm -S git sudo fakeroot binutils
 
-      - name: Build package
+      - name: Prepare to build package
         run: |
           # Create build user
           useradd -m builder
@@ -42,9 +42,13 @@ jobs:
           
           # Import GPG keys
           sudo -u builder bash -c 'gpg --import keys/pgp/*.asc'
-          
+
+          # Install deps and download sources as non-root user
+          sudo -u builder bash -c 'makepkg -so --noconfirm'
+      - name: Prepare to build package
+        run: |
           # Build package as non-root user
-          sudo -u builder bash -c 'makepkg -s --noconfirm'
+          sudo -u builder bash -c 'makepkg -e --noconfirm'
 
       - name: Upload package
         uses: actions/upload-artifact@v4

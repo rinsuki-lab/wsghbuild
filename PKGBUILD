@@ -32,63 +32,63 @@ arch=(x86_64)
 options=(staticlibs !lto)
 license=(LGPL-2.1-or-later)
 depends=(
-  attr            lib32-attr
+  attr            #lib32-attr
   desktop-file-utils
-  fontconfig      lib32-fontconfig
-  freetype2       lib32-freetype2
-  gcc-libs        lib32-gcc-libs
-  gettext         lib32-gettext
-  libpcap         lib32-libpcap
-  libxcursor      lib32-libxcursor
-  libxi           lib32-libxi
-  libxrandr       lib32-libxrandr
+  fontconfig      #lib32-fontconfig
+  freetype2       #lib32-freetype2
+  gcc-libs        #lib32-gcc-libs
+  gettext         #lib32-gettext
+  libpcap         #lib32-libpcap
+  libxcursor      #lib32-libxcursor
+  libxi           #lib32-libxi
+  libxrandr       #lib32-libxrandr
 )
 makedepends=(autoconf bison perl flex mingw-w64-gcc
   git
-  alsa-lib              lib32-alsa-lib
+  alsa-lib              #lib32-alsa-lib
   ffmpeg
-  giflib                lib32-giflib
-  gnutls                lib32-gnutls
-  gst-plugins-base-libs lib32-gst-plugins-base-libs
-  gtk3                  lib32-gtk3
-  libcups               lib32-libcups
+  giflib                #lib32-giflib
+  gnutls                #lib32-gnutls
+  gst-plugins-base-libs #lib32-gst-plugins-base-libs
+  gtk3                  #lib32-gtk3
+  libcups               #lib32-libcups
   libgphoto2
-  libpulse              lib32-libpulse
-  libva                 lib32-libva
-  libxcomposite         lib32-libxcomposite
-  libxinerama           lib32-libxinerama
-  libxxf86vm            lib32-libxxf86vm
-  mesa                  lib32-mesa
-  mesa-libgl            lib32-mesa-libgl
+  libpulse              #lib32-libpulse
+  libva                 #lib32-libva
+  libxcomposite         #lib32-libxcomposite
+  libxinerama           #lib32-libxinerama
+  libxxf86vm            #lib32-libxxf86vm
+  mesa                  #lib32-mesa
+  mesa-libgl            #lib32-mesa-libgl
   opencl-headers
-  opencl-icd-loader     lib32-opencl-icd-loader
+  opencl-icd-loader     #lib32-opencl-icd-loader
   samba
   sane
-  sdl2                  lib32-sdl2
-  v4l-utils             lib32-v4l-utils
-  vulkan-icd-loader     lib32-vulkan-icd-loader
+  sdl2                  #lib32-sdl2
+  v4l-utils             #lib32-v4l-utils
+  vulkan-icd-loader     #lib32-vulkan-icd-loader
 )
 optdepends=(
-  alsa-lib              lib32-alsa-lib
-  alsa-plugins          lib32-alsa-plugins
-  cups                  lib32-libcups
+  alsa-lib              #lib32-alsa-lib
+  alsa-plugins          #lib32-alsa-plugins
+  cups                  #lib32-libcups
   dosbox
   ffmpeg
-  giflib                lib32-giflib
-  gnutls                lib32-gnutls
-  gst-plugins-base-libs lib32-gst-plugins-base-libs
-  gtk3                  lib32-gtk3
+  giflib                #lib32-giflib
+  gnutls                #lib32-gnutls
+  gst-plugins-base-libs #lib32-gst-plugins-base-libs
+  gtk3                  #lib32-gtk3
   libgphoto2
-  libpulse              lib32-libpulse
-  libva                 lib32-libva
-  libxcomposite         lib32-libxcomposite
-  libxinerama           lib32-libxinerama
-  opencl-icd-loader     lib32-opencl-icd-loader
+  libpulse              #lib32-libpulse
+  libva                 #lib32-libva
+  libxcomposite         #lib32-libxcomposite
+  libxinerama           #lib32-libxinerama
+  opencl-icd-loader     #lib32-opencl-icd-loader
   samba
   sane
-  sdl2                  lib32-sdl2
-  v4l-utils             lib32-v4l-utils
-  vulkan-icd-loader     lib32-vulkan-icd-loader
+  sdl2                  #lib32-sdl2
+  v4l-utils             #lib32-v4l-utils
+  vulkan-icd-loader     #lib32-vulkan-icd-loader
   wine-gecko
   wine-mono
 )
@@ -111,10 +111,6 @@ prepare() {
 }
 
 build() {
-  # Doesn't compile without remove these flags as of 4.10
-  # incompatible-pointer-types: https://bugs.gentoo.org/919758
-  export CFLAGS="$CFLAGS -ffat-lto-objects -Wno-error=incompatible-pointer-types"
-
   # Apply flags for cross-compilation
   export CROSSCFLAGS="-O2 -pipe"
   export CROSSCXXFLAGS="-O2 -pipe"
@@ -130,47 +126,25 @@ build() {
     --with-gstreamer \
     --with-xattr \
     --with-freetype \
-    --enable-win64
+    --enable-archs=x86_64,i386
 
-  make
-
-  echo "Building Wine-32..."
-  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
-  cd "$srcdir/$pkgname-32-build"
-  ../wine/configure \
-    --prefix=/usr \
-    --libdir=/usr/lib \
-    --with-x \
-    --with-wayland \
-    --with-gstreamer \
-    --with-xattr \
-    --with-freetype \
-    --with-wine64="$srcdir/$pkgname-64-build"
-
-  make
+  make -j$(nproc)
 }
 
 package() {
-  echo "Packaging Wine-32..."
-  cd "$srcdir/$pkgname-32-build"
-  make prefix="$pkgdir/usr" \
-    libdir="$pkgdir/usr/lib" \
-    dlldir="$pkgdir/usr/lib/wine" install
-
   echo "Packaging Wine-64..."
   cd "$srcdir/$pkgname-64-build"
   make prefix="$pkgdir/usr" \
     libdir="$pkgdir/usr/lib" \
     dlldir="$pkgdir/usr/lib/wine" install
 
+  ln -sf /usr/bin/wine "$pkgdir"/usr/bin/wine64
+
   # Font aliasing settings for Win32 applications
   install -d "$pkgdir"/usr/share/fontconfig/conf.{avail,default}
   install -m644 "$srcdir/30-win32-aliases.conf" "$pkgdir/usr/share/fontconfig/conf.avail"
   ln -s ../conf.avail/30-win32-aliases.conf "$pkgdir/usr/share/fontconfig/conf.default/30-win32-aliases.conf"
   install -Dm 644 "$srcdir/wine-binfmt.conf" "$pkgdir/usr/lib/binfmt.d/wine.conf"
-
-  i686-w64-mingw32-strip --strip-unneeded "$pkgdir"/usr/lib/wine/i386-windows/*.dll
-  x86_64-w64-mingw32-strip --strip-unneeded "$pkgdir"/usr/lib/wine/x86_64-windows/*.dll
 }
 
 # vim:set ts=8 sts=2 sw=2 et:

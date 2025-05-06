@@ -107,7 +107,7 @@ prepare() {
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all
   
   # apply MR 7959 patch
-  patch -p1 < ../wine-mr-7959.patch
+  patch -p1 < ../7959.patch
 }
 
 build() {

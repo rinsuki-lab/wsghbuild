@@ -16,11 +16,13 @@ _winever=$_pkgbasever
 source=("git+https://gitlab.winehq.org/wine/wine.git?signed#tag=wine-$_pkgbasever"
         "git+https://gitlab.winehq.org/wine/wine-staging.git#tag=v$_pkgbasever"
         30-win32-aliases.conf
-        wine-binfmt.conf)
+        wine-binfmt.conf
+        https://gitlab.winehq.org/wine/wine/-/merge_requests/7959.patch)
 sha512sums=('00b283d5ed6497360892b246dd1886a3aadf4098274eb83c66a501bf4b6ff67290b5bebaa8e4c172730dad4aea642468fd3bfda3263f5d27846b15b88afd8bb3'
             '8d69c198229174dc4ca9c93201cab8a718aaf23f01e61b42cf98af25733890aea7995cada054a8a6dc36f6ef3131450d5968157a80b777c69f9c6f8ef97336b0'
             '6e54ece7ec7022b3c9d94ad64bdf1017338da16c618966e8baf398e6f18f80f7b0576edf1d1da47ed77b96d577e4cbb2bb0156b0b11c183a0accf22654b0a2bb'
-            'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285')
+            'bdde7ae015d8a98ba55e84b86dc05aca1d4f8de85be7e4bd6187054bfe4ac83b5a20538945b63fb073caab78022141e9545685e4e3698c97ff173cf30859e285'
+            '6aebfc88fc227a1eb00371282833cfaf59c0c7a8c4e59c86ac4fab271c0a18ded75d2f679bf21558fd806ed8bc22060874e84c303d97f10c9fe826f5654381d3')
 
 pkgdesc="A compatibility layer for running Windows programs - Staging branch"
 url="https://www.wine-staging.com"
@@ -101,6 +103,9 @@ prepare() {
   cd wine
   # apply wine-staging patchset
   ../wine-staging/staging/patchinstall.py --backend=git-apply --all
+  
+  # apply MR 7959 patch
+  patch -p1 < ../wine-mr-7959.patch
 }
 
 build() {

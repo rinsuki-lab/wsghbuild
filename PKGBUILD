@@ -126,7 +126,8 @@ build() {
     --with-gstreamer \
     --with-xattr \
     --with-freetype \
-    --without-ffmpeg \
+    --with-ffmpeg \
+    --without-gstreamer \
     --enable-archs=x86_64,i386
 
   make -j$(nproc)
